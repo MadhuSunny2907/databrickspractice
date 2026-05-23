@@ -1,0 +1,338 @@
+{
+	"name": "Flow_Prepare_Data",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "s3_src_file",
+						"type": "DatasetReference"
+					},
+					"name": "customersdata"
+				},
+				{
+					"dataset": {
+						"referenceName": "s3_src_file",
+						"type": "DatasetReference"
+					},
+					"name": "orderdata"
+				},
+				{
+					"dataset": {
+						"referenceName": "s3_src_file",
+						"type": "DatasetReference"
+					},
+					"name": "orderitmes",
+					"description": "Bring order items"
+				},
+				{
+					"dataset": {
+						"referenceName": "s3_src_file",
+						"type": "DatasetReference"
+					},
+					"name": "PaymentsData",
+					"description": "Fetch payments data"
+				},
+				{
+					"dataset": {
+						"referenceName": "s3_src_file",
+						"type": "DatasetReference"
+					},
+					"name": "ReviewsData",
+					"description": "Fetch Reviews"
+				},
+				{
+					"dataset": {
+						"referenceName": "s3_src_file",
+						"type": "DatasetReference"
+					},
+					"name": "ProductsData",
+					"description": "Fetch Products"
+				},
+				{
+					"dataset": {
+						"referenceName": "s3_src_file",
+						"type": "DatasetReference"
+					},
+					"name": "SellerData",
+					"description": "Fetch Sellers Data"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Olist_Data",
+						"type": "DatasetReference"
+					},
+					"name": "custoutput"
+				},
+				{
+					"dataset": {
+						"referenceName": "Olist_Data",
+						"type": "DatasetReference"
+					},
+					"name": "orderoutput"
+				},
+				{
+					"dataset": {
+						"referenceName": "Olist_Data",
+						"type": "DatasetReference"
+					},
+					"name": "TgtOrderItems"
+				},
+				{
+					"dataset": {
+						"referenceName": "Olist_Data",
+						"type": "DatasetReference"
+					},
+					"name": "TgtReviews"
+				},
+				{
+					"dataset": {
+						"referenceName": "Olist_Data",
+						"type": "DatasetReference"
+					},
+					"name": "tgtSellersData"
+				},
+				{
+					"dataset": {
+						"referenceName": "Olist_Data",
+						"type": "DatasetReference"
+					},
+					"name": "tgtProductData"
+				},
+				{
+					"dataset": {
+						"referenceName": "Olist_Data",
+						"type": "DatasetReference"
+					},
+					"name": "tgtPaymentsData"
+				}
+			],
+			"transformations": [
+				{
+					"name": "existschkOrders"
+				},
+				{
+					"name": "existsChkReviewsInOrders"
+				},
+				{
+					"name": "existsChkProducts"
+				},
+				{
+					"name": "existsChkPayments"
+				},
+				{
+					"name": "FilterDate"
+				},
+				{
+					"name": "DeriveDates"
+				},
+				{
+					"name": "filterReviews"
+				},
+				{
+					"name": "existsChkCust"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Date as string",
+				"}",
+				"source(output(",
+				"          customer_id as string,",
+				"          customer_unique_id as string,",
+				"          customer_zip_code_prefix as integer,",
+				"          customer_city as string,",
+				"          customer_state as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> customersdata",
+				"source(output(",
+				"          order_id as string,",
+				"          customer_id as string,",
+				"          order_status as string,",
+				"          order_purchase_timestamp as timestamp,",
+				"          order_approved_at as timestamp,",
+				"          order_delivered_carrier_date as timestamp,",
+				"          order_delivered_customer_date as timestamp,",
+				"          order_estimated_delivery_date as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> orderdata",
+				"source(output(",
+				"          order_id as string,",
+				"          order_item_id as short,",
+				"          product_id as string,",
+				"          seller_id as string,",
+				"          shipping_limit_date as timestamp,",
+				"          price as double,",
+				"          freight_value as double",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> orderitmes",
+				"source(output(",
+				"          order_id as string,",
+				"          payment_sequential as short,",
+				"          payment_type as string,",
+				"          payment_installments as short,",
+				"          payment_value as double",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> PaymentsData",
+				"source(output(",
+				"          review_id as string,",
+				"          order_id as string,",
+				"          review_score as string,",
+				"          review_comment_title as string,",
+				"          review_comment_message as string,",
+				"          review_creation_date as timestamp,",
+				"          review_answer_timestamp as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ReviewsData",
+				"source(output(",
+				"          product_id as string,",
+				"          product_category_name as string,",
+				"          product_name_lenght as short,",
+				"          product_description_lenght as short,",
+				"          product_photos_qty as short,",
+				"          product_weight_g as short,",
+				"          product_length_cm as short,",
+				"          product_height_cm as short,",
+				"          product_width_cm as short",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ProductsData",
+				"source(output(",
+				"          seller_id as string,",
+				"          seller_zip_code_prefix as integer,",
+				"          seller_city as string,",
+				"          seller_state as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> SellerData",
+				"orderitmes, select1 exists(orderitmes@order_id == select1@order_id,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> existschkOrders",
+				"SellerData, existschkOrders exists(SellerData@seller_id == orderitmes@seller_id,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> existsChkReviewsInOrders",
+				"ProductsData, existschkOrders exists(ProductsData@product_id==orderitmes@product_id,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> existsChkProducts",
+				"PaymentsData, FilterDate exists(PaymentsData@order_id == orderdata@order_id,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> existsChkPayments",
+				"orderdata filter(or(equals(toDate(toString(order_purchase_timestamp, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd')), \r",
+				"or(equals(toDate(toString(order_approved_at, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd')),\r",
+				"or(equals(toDate(toString(order_delivered_carrier_date, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd')),\r",
+				"equals(toDate(toString(order_delivered_customer_date, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd')))))) ~> FilterDate",
+				"FilterDate derive(order_approved_at = iif(lesserOrEqual(toDate(toString(order_approved_at, 'yyyy-MM-dd'),'yyyy-MM-dd'), toDate($Date, 'yyyy-MM-dd')), order_approved_at, toTimestamp(null())),",
+				"          order_delivered_carrier_date = iif(lesserOrEqual(toDate(toString(order_delivered_carrier_date, 'yyyy-MM-dd'),'yyyy-MM-dd'), toDate($Date, 'yyyy-MM-dd')), order_delivered_carrier_date, toTimestamp(null())),",
+				"          order_delivered_customer_date = iif(lesserOrEqual(toDate(toString(order_delivered_customer_date, 'yyyy-MM-dd'),'yyyy-MM-dd'), toDate($Date, 'yyyy-MM-dd')), order_delivered_customer_date, toTimestamp(null())),",
+				"          order_estimated_delivery_date = iif(lesserOrEqual(toDate(toString(order_approved_at, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd')), order_estimated_delivery_date, toTimestamp(null())),",
+				"          order_status = iif(order_status=='canceled','CANCELED',\r",
+				"iif(toDate(toString(order_approved_at, 'yyyy-MM-dd'),'yyyy-MM-dd')==toDate($Date, 'yyyy-MM-dd'),'ORDERED',\r",
+				"iif(toDate(toString(order_delivered_carrier_date, 'yyyy-MM-dd'),'yyyy-MM-dd')==toDate($Date, 'yyyy-MM-dd'),'SHIPPED',\r",
+				"iif(toDate(toString(order_delivered_customer_date, 'yyyy-MM-dd'),'yyyy-MM-dd')==toDate($Date, 'yyyy-MM-dd'),'DELIVERED',upper(order_status)))))) ~> DeriveDates",
+				"ReviewsData filter(equals(toDate(toString(review_creation_date, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd'))) ~> filterReviews",
+				"customersdata, FilterDate exists(customersdata@customer_id == orderdata@customer_id,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> existsChkCust",
+				"DeriveDates select(mapColumn(",
+				"          order_id,",
+				"          customer_id,",
+				"          order_status,",
+				"          order_purchase_timestamp,",
+				"          order_approved_at,",
+				"          order_delivered_carrier_date,",
+				"          order_delivered_customer_date,",
+				"          order_estimated_delivery_date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"existsChkCust sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:[('customer_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2,",
+				"     partitionBy('hash', 1)) ~> custoutput",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:[('orders_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     partitionBy('hash', 1)) ~> orderoutput",
+				"existschkOrders sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:[('orderitems_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 3,",
+				"     partitionBy('hash', 1)) ~> TgtOrderItems",
+				"filterReviews sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:[('reviews_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> TgtReviews",
+				"existsChkReviewsInOrders sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:[('sellers_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 5,",
+				"     partitionBy('hash', 1)) ~> tgtSellersData",
+				"existsChkProducts sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:[('products_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 4,",
+				"     partitionBy('hash', 1)) ~> tgtProductData",
+				"existsChkPayments sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:[('payments_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 6,",
+				"     partitionBy('hash', 1)) ~> tgtPaymentsData"
+			]
+		}
+	}
+}

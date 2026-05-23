@@ -1,0 +1,15 @@
+{
+	"name": "sunnyadf07",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "35015fb0-a343-4449-9cd6-51a92b5e952a",
+		"tenantId": "69a91c9a-d21b-4d6c-8d94-dc757a6c9601"
+	}
+}

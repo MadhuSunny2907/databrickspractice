@@ -1,0 +1,41 @@
+{
+	"name": "Trigger_Gen_Data",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "P_Prepare_Olist_Data",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"src_cust_file": "olist_customers_dataset.csv",
+					"src_orders_file": "olist_orders_dataset.csv",
+					"src_orderItems": "olist_order_items_dataset.csv",
+					"src_Payments": "olist_order_payments_dataset.csv",
+					"src_reviews": "olist_order_reviews_dataset.csv",
+					"src_seller": "olist_sellers_dataset.csv",
+					"src_prodcuts": "olist_products_dataset.csv"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2026-05-19T17:47:00",
+				"timeZone": "India Standard Time",
+				"schedule": {
+					"minutes": [
+						0
+					],
+					"hours": [
+						6
+					]
+				}
+			}
+		}
+	}
+}

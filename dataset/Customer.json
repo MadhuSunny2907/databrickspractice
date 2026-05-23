@@ -1,0 +1,45 @@
+{
+	"name": "Customer",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AmazonS31",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AmazonS3Location",
+				"bucketName": "sflake-dbt",
+				"folderPath": "Olist_Ecommerce"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "customer_id",
+				"type": "String"
+			},
+			{
+				"name": "customer_unique_id",
+				"type": "String"
+			},
+			{
+				"name": "customer_zip_code_prefix",
+				"type": "String"
+			},
+			{
+				"name": "customer_city",
+				"type": "String"
+			},
+			{
+				"name": "customer_state",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

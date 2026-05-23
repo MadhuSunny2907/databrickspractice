@@ -1,0 +1,479 @@
+{
+	"name": "P_Prepare_Olist_Data",
+	"properties": {
+		"activities": [
+			{
+				"name": "Flow_Data_Prepare",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "V_Date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Flow_Prepare_Data",
+						"type": "DataFlowReference",
+						"parameters": {
+							"Date": {
+								"value": "'@{variables('Date')}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"customersdata": {
+								"FileName": {
+									"value": "@pipeline().parameters.src_cust_file",
+									"type": "Expression"
+								}
+							},
+							"orderdata": {
+								"FileName": {
+									"value": "@pipeline().parameters.src_orders_file",
+									"type": "Expression"
+								}
+							},
+							"orderitmes": {
+								"FileName": {
+									"value": "@pipeline().parameters.src_orderItems",
+									"type": "Expression"
+								}
+							},
+							"PaymentsData": {
+								"FileName": {
+									"value": "@pipeline().parameters.src_Payments",
+									"type": "Expression"
+								}
+							},
+							"ReviewsData": {
+								"FileName": {
+									"value": "@pipeline().parameters.src_reviews",
+									"type": "Expression"
+								}
+							},
+							"ProductsData": {
+								"FileName": {
+									"value": "@pipeline().parameters.src_prodcuts",
+									"type": "Expression"
+								}
+							},
+							"SellerData": {
+								"FileName": {
+									"value": "@pipeline().parameters.src_seller",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Lkp_Run_Date",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "FlowStatus",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "V_Date",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lkp_Run_Date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Date",
+					"value": {
+						"value": "@activity('Lkp_Run_Date').output.firstRow.RUN_DATE",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "UpdFlowStatus",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Flow_Data_Prepare",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "DATE",
+								"value": {
+									"value": "@formatDateTime(adddays(activity('Lkp_Run_Date').output.firstRow.RUN_DATE,1),'yyyy-MM-dd')",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "DATE",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "RUN_DATE",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "FlowStatus",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FlowStatus",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "CopyFilesToLanding",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Var_FileCopyDate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "output",
+							"wildcardFileName": {
+								"value": "@concat('*',variables('FileDateForCopy'),'*')",
+								"type": "Expression"
+							},
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Olist_Data",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "OutPut_Files",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Var_FileCopyDate",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "UpdFlowStatus",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "FileDateForCopy",
+					"value": {
+						"value": "@formatDateTime(activity('Lkp_Run_Date').output.firstRow.RUN_DATE,'yyyyMMdd')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Archive",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "CopyFilesToLanding",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "output",
+							"wildcardFileName": {
+								"value": "@concat('*',variables('FileDateForCopy'),'*')",
+								"type": "Expression"
+							},
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Olist_Data",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ProcessedDir",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "ArchiveStep2",
+				"type": "Delete",
+				"dependsOn": [
+					{
+						"activity": "Archive",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Olist_Data",
+						"type": "DatasetReference"
+					},
+					"logStorageSettings": {
+						"linkedServiceName": {
+							"referenceName": "AzureDataLakeStorage1",
+							"type": "LinkedServiceReference"
+						}
+					},
+					"enableLogging": true,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": false,
+						"wildcardFileName": {
+							"value": "@{concat('*',variables('FileDateForCopy'),'*')}",
+							"type": "Expression"
+						},
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"parameters": {
+			"src_cust_file": {
+				"type": "string",
+				"defaultValue": "olist_customers_dataset.csv"
+			},
+			"src_orders_file": {
+				"type": "string",
+				"defaultValue": "olist_orders_dataset.csv"
+			},
+			"src_orderItems": {
+				"type": "string",
+				"defaultValue": "olist_order_items_dataset.csv"
+			},
+			"src_Payments": {
+				"type": "string",
+				"defaultValue": "olist_order_payments_dataset.csv"
+			},
+			"src_reviews": {
+				"type": "string",
+				"defaultValue": "olist_order_reviews_dataset.csv"
+			},
+			"src_seller": {
+				"type": "string",
+				"defaultValue": "olist_sellers_dataset.csv"
+			},
+			"src_prodcuts": {
+				"type": "string",
+				"defaultValue": "olist_products_dataset.csv"
+			}
+		},
+		"variables": {
+			"Date": {
+				"type": "String"
+			},
+			"FileDateForCopy": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-05-20T05:21:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

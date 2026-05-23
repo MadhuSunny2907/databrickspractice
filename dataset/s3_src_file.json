@@ -1,0 +1,36 @@
+{
+	"name": "s3_src_file",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AmazonS31",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FileName": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Olist"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AmazonS3Location",
+				"bucketName": "sflake-dbt",
+				"folderPath": "Olist_Ecommerce/",
+				"fileName": {
+					"value": "@dataset().FileName",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

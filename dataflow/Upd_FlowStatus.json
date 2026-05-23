@@ -1,0 +1,52 @@
+{
+	"name": "Upd_FlowStatus",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "FlowStatus",
+						"type": "DatasetReference"
+					},
+					"name": "FlowStatus"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "FlowStatus",
+						"type": "DatasetReference"
+					},
+					"name": "IsrtFlowStatus"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          RUN_DATE as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> FlowStatus",
+				"FlowStatus derive(RUN_DATE = addDays(RUN_DATE,1)) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string",
+				"     ),",
+				"     partitionFileNames:['Flow_status.csv'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> IsrtFlowStatus"
+			]
+		}
+	}
+}
