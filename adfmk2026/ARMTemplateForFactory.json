@@ -1,0 +1,2341 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adfmk2026"
+		},
+		"AmazonS31_secretAccessKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'secretAccessKey' of 'AmazonS31'"
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1'"
+		},
+		"AzureDatabricks_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'AzureDatabricks'"
+		},
+		"AzureDatabricksDeltaLake1_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'AzureDatabricksDeltaLake1'"
+		},
+		"AzureSqlDatabase1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
+		},
+		"BLOBTOSQL_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'BLOBTOSQL'"
+		},
+		"Linkedserviceforsahithstorage13_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'Linkedserviceforsahithstorage13'"
+		},
+		"csvinput_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'csvinput'"
+		},
+		"AmazonS31_properties_typeProperties_accessKeyId": {
+			"type": "string",
+			"defaultValue": "AKIAV4RBOXVAVROP4LRZ"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://dbdestorage.dfs.core.windows.net/"
+		},
+		"AzureDatabricks_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0502-172659-yg6thv2z"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sahithserver.database.windows.net"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "SahithDB"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "Sahith"
+		},
+		"csvtojson_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/25dfa29b-a461-4a58-8127-27b52c1ba43e/resourceGroups/SK/providers/Microsoft.Storage/storageAccounts/sahithstorage13"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOBTOSQLDATABASE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "emp_id",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "emp_id",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "salary",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "salary",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "address",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "address",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "loc",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "location",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "email",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "email",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "BLOBTOSQL",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "BLOBSQLDATABASE2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/BLOBTOSQL')]",
+				"[concat(variables('factoryId'), '/datasets/BLOBSQLDATABASE2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Copydata')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Input",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Output",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Input')]",
+				"[concat(variables('factoryId'), '/datasets/Output')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Output",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"logStorageSettings": {
+								"linkedServiceName": {
+									"referenceName": "Linkedserviceforsahithstorage13",
+									"type": "LinkedServiceReference"
+								},
+								"path": "sahithadfcontainer"
+							},
+							"enableLogging": true,
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Output')]",
+				"[concat(variables('factoryId'), '/linkedServices/Linkedserviceforsahithstorage13')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/P_Prepare_Olist_Data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Flow_Data_Prepare",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "V_Date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Flow_Prepare_Data",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Date": {
+										"value": "'@{variables('Date')}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"customersdata": {
+										"FileName": {
+											"value": "@pipeline().parameters.src_cust_file",
+											"type": "Expression"
+										}
+									},
+									"orderdata": {
+										"FileName": {
+											"value": "@pipeline().parameters.src_orders_file",
+											"type": "Expression"
+										}
+									},
+									"orderitmes": {
+										"FileName": {
+											"value": "@pipeline().parameters.src_orderItems",
+											"type": "Expression"
+										}
+									},
+									"PaymentsData": {
+										"FileName": {
+											"value": "@pipeline().parameters.src_Payments",
+											"type": "Expression"
+										}
+									},
+									"ReviewsData": {
+										"FileName": {
+											"value": "@pipeline().parameters.src_reviews",
+											"type": "Expression"
+										}
+									},
+									"ProductsData": {
+										"FileName": {
+											"value": "@pipeline().parameters.src_prodcuts",
+											"type": "Expression"
+										}
+									},
+									"SellerData": {
+										"FileName": {
+											"value": "@pipeline().parameters.src_seller",
+											"type": "Expression"
+										}
+									},
+									"custoutput": {},
+									"orderoutput": {},
+									"TgtOrderItems": {},
+									"TgtReviews": {},
+									"tgtSellersData": {},
+									"tgtProductData": {},
+									"tgtPaymentsData": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Lkp_Run_Date",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "FlowStatus",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "V_Date",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Lkp_Run_Date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "Date",
+							"value": {
+								"value": "@activity('Lkp_Run_Date').output.firstRow.RUN_DATE",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "UpdFlowStatus",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Flow_Data_Prepare",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"additionalColumns": [
+									{
+										"name": "DATE",
+										"value": {
+											"value": "@formatDateTime(adddays(activity('Lkp_Run_Date').output.firstRow.RUN_DATE,1),'yyyy-MM-dd')",
+											"type": "Expression"
+										}
+									}
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "DATE",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "RUN_DATE",
+											"type": "String",
+											"physicalType": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "FlowStatus",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FlowStatus",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "CopyFilesToLanding",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Var_FileCopyDate",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "output",
+									"wildcardFileName": {
+										"value": "@concat('*',variables('FileDateForCopy'),'*')",
+										"type": "Expression"
+									},
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "PreserveHierarchy"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "OutPut_Files",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Var_FileCopyDate",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "UpdFlowStatus",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "FileDateForCopy",
+							"value": {
+								"value": "@formatDateTime(activity('Lkp_Run_Date').output.firstRow.RUN_DATE,'yyyyMMdd')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Archive",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "CopyFilesToLanding",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "output",
+									"wildcardFileName": {
+										"value": "@concat('*',variables('FileDateForCopy'),'*')",
+										"type": "Expression"
+									},
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "PreserveHierarchy"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ProcessedDir",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "ArchiveStep2",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "Archive",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"logStorageSettings": {
+								"linkedServiceName": {
+									"referenceName": "AzureDataLakeStorage1",
+									"type": "LinkedServiceReference"
+								}
+							},
+							"enableLogging": true,
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": false,
+								"wildcardFileName": {
+									"value": "@{concat('*',variables('FileDateForCopy'),'*')}",
+									"type": "Expression"
+								},
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"src_cust_file": {
+						"type": "string",
+						"defaultValue": "olist_customers_dataset.csv"
+					},
+					"src_orders_file": {
+						"type": "string",
+						"defaultValue": "olist_orders_dataset.csv"
+					},
+					"src_orderItems": {
+						"type": "string",
+						"defaultValue": "olist_order_items_dataset.csv"
+					},
+					"src_Payments": {
+						"type": "string",
+						"defaultValue": "olist_order_payments_dataset.csv"
+					},
+					"src_reviews": {
+						"type": "string",
+						"defaultValue": "olist_order_reviews_dataset.csv"
+					},
+					"src_seller": {
+						"type": "string",
+						"defaultValue": "olist_sellers_dataset.csv"
+					},
+					"src_prodcuts": {
+						"type": "string",
+						"defaultValue": "olist_products_dataset.csv"
+					}
+				},
+				"variables": {
+					"Date": {
+						"type": "String"
+					},
+					"FileDateForCopy": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-05-20T05:21:37Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Flow_Prepare_Data')]",
+				"[concat(variables('factoryId'), '/datasets/FlowStatus')]",
+				"[concat(variables('factoryId'), '/datasets/Olist_Data')]",
+				"[concat(variables('factoryId'), '/datasets/OutPut_Files')]",
+				"[concat(variables('factoryId'), '/datasets/ProcessedDir')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AmazonS3ReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "Olist_Ecommerce",
+									"wildcardFileName": "*",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "PreserveHierarchy"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Customer",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "olist",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-05-15T10:21:23Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Customer')]",
+				"[concat(variables('factoryId'), '/datasets/olist')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOBSQLDATABASE2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "emp_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "salary",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "address",
+						"type": "nvarchar"
+					},
+					{
+						"name": "location",
+						"type": "nvarchar"
+					},
+					{
+						"name": "email",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "employee"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOBTOSQL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "BLOBTOSQL",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "emp_1.csv",
+						"folderPath": "BLOBTOSQLDATABASE",
+						"container": "sahithadfcontainer"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "emp_id",
+						"type": "String"
+					},
+					{
+						"name": "name",
+						"type": "String"
+					},
+					{
+						"name": "salary",
+						"type": "String"
+					},
+					{
+						"name": "address",
+						"type": "String"
+					},
+					{
+						"name": "loc",
+						"type": "String"
+					},
+					{
+						"name": "email",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/BLOBTOSQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AmazonS31",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AmazonS3Location",
+						"bucketName": "sflake-dbt",
+						"folderPath": "Olist_Ecommerce"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "customer_id",
+						"type": "String"
+					},
+					{
+						"name": "customer_unique_id",
+						"type": "String"
+					},
+					{
+						"name": "customer_zip_code_prefix",
+						"type": "String"
+					},
+					{
+						"name": "customer_city",
+						"type": "String"
+					},
+					{
+						"name": "customer_state",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AmazonS31')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FlowStatus')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Flow_status.csv",
+						"fileSystem": "olist"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Input')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Linkedserviceforsahithstorage13",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Data.txt",
+						"folderPath": "Input",
+						"container": "sahithadfcontainer"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Linkedserviceforsahithstorage13')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Olist_Data')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "output",
+						"fileSystem": "olist"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/OutPut_Files')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "landing",
+						"fileSystem": "olist"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "customer_id",
+						"type": "String"
+					},
+					{
+						"name": "customer_unique_id",
+						"type": "String"
+					},
+					{
+						"name": "customer_zip_code_prefix",
+						"type": "String"
+					},
+					{
+						"name": "customer_city",
+						"type": "String"
+					},
+					{
+						"name": "customer_state",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Output')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Linkedserviceforsahithstorage13",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "sss.txt",
+						"folderPath": "Output",
+						"container": "sahithadfcontainer"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Linkedserviceforsahithstorage13')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ProcessedDir')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "output/processed",
+						"fileSystem": "olist"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/olist')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "landing",
+						"fileSystem": "olist"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/s3_src_file')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AmazonS31",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Olist"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AmazonS3Location",
+						"bucketName": "sflake-dbt",
+						"folderPath": "Olist_Ecommerce/",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AmazonS31')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AmazonS31')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AmazonS3",
+				"typeProperties": {
+					"serviceUrl": "",
+					"accessKeyId": "[parameters('AmazonS31_properties_typeProperties_accessKeyId')]",
+					"secretAccessKey": {
+						"type": "SecureString",
+						"value": "[parameters('AmazonS31_secretAccessKey')]"
+					},
+					"authenticationType": "AccessKey"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage1_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDatabricks')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-7405614023238689.9.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDatabricks_accessToken')]"
+					},
+					"existingClusterId": "[parameters('AzureDatabricks_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDatabricksDeltaLake1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricksDeltaLake",
+				"typeProperties": {
+					"domain": "https://adb-7405614023238689.9.azuredatabricks.net",
+					"clusterId": "0502-172659-yg6thv2z",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDatabricksDeltaLake1_accessToken')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]",
+					"database": "[parameters('AzureSqlDatabase1_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('AzureSqlDatabase1_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('AzureSqlDatabase1_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOBTOSQL')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('BLOBTOSQL_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Linkedserviceforsahithstorage13')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('Linkedserviceforsahithstorage13_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Flow_Prepare_Data')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "customersdata"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "orderdata"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "orderitmes",
+							"description": "Bring order items"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "PaymentsData",
+							"description": "Fetch payments data"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "ReviewsData",
+							"description": "Fetch Reviews"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "ProductsData",
+							"description": "Fetch Products"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "SellerData",
+							"description": "Fetch Sellers Data"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "custoutput"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "orderoutput"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "TgtOrderItems"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "TgtReviews"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "tgtSellersData"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "tgtProductData"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "tgtPaymentsData"
+						}
+					],
+					"transformations": [
+						{
+							"name": "existschkOrders"
+						},
+						{
+							"name": "existsChkReviewsInOrders"
+						},
+						{
+							"name": "existsChkProducts"
+						},
+						{
+							"name": "existsChkPayments"
+						},
+						{
+							"name": "FilterDate"
+						},
+						{
+							"name": "DeriveDates"
+						},
+						{
+							"name": "filterReviews"
+						},
+						{
+							"name": "existsChkCust"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     Date as string",
+						"}",
+						"source(output(",
+						"          customer_id as string,",
+						"          customer_unique_id as string,",
+						"          customer_zip_code_prefix as integer,",
+						"          customer_city as string,",
+						"          customer_state as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> customersdata",
+						"source(output(",
+						"          order_id as string,",
+						"          customer_id as string,",
+						"          order_status as string,",
+						"          order_purchase_timestamp as timestamp,",
+						"          order_approved_at as timestamp,",
+						"          order_delivered_carrier_date as timestamp,",
+						"          order_delivered_customer_date as timestamp,",
+						"          order_estimated_delivery_date as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> orderdata",
+						"source(output(",
+						"          order_id as string,",
+						"          order_item_id as short,",
+						"          product_id as string,",
+						"          seller_id as string,",
+						"          shipping_limit_date as timestamp,",
+						"          price as double,",
+						"          freight_value as double",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> orderitmes",
+						"source(output(",
+						"          order_id as string,",
+						"          payment_sequential as short,",
+						"          payment_type as string,",
+						"          payment_installments as short,",
+						"          payment_value as double",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> PaymentsData",
+						"source(output(",
+						"          review_id as string,",
+						"          order_id as string,",
+						"          review_score as string,",
+						"          review_comment_title as string,",
+						"          review_comment_message as string,",
+						"          review_creation_date as timestamp,",
+						"          review_answer_timestamp as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> ReviewsData",
+						"source(output(",
+						"          product_id as string,",
+						"          product_category_name as string,",
+						"          product_name_lenght as short,",
+						"          product_description_lenght as short,",
+						"          product_photos_qty as short,",
+						"          product_weight_g as short,",
+						"          product_length_cm as short,",
+						"          product_height_cm as short,",
+						"          product_width_cm as short",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> ProductsData",
+						"source(output(",
+						"          seller_id as string,",
+						"          seller_zip_code_prefix as integer,",
+						"          seller_city as string,",
+						"          seller_state as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> SellerData",
+						"orderitmes, select1 exists(orderitmes@order_id == select1@order_id,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> existschkOrders",
+						"SellerData, existschkOrders exists(SellerData@seller_id == orderitmes@seller_id,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> existsChkReviewsInOrders",
+						"ProductsData, existschkOrders exists(ProductsData@product_id==orderitmes@product_id,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> existsChkProducts",
+						"PaymentsData, FilterDate exists(PaymentsData@order_id == orderdata@order_id,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> existsChkPayments",
+						"orderdata filter(or(equals(toDate(toString(order_purchase_timestamp, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd')), \r",
+						"or(equals(toDate(toString(order_approved_at, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd')),\r",
+						"or(equals(toDate(toString(order_delivered_carrier_date, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd')),\r",
+						"equals(toDate(toString(order_delivered_customer_date, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd')))))) ~> FilterDate",
+						"FilterDate derive(order_approved_at = iif(lesserOrEqual(toDate(toString(order_approved_at, 'yyyy-MM-dd'),'yyyy-MM-dd'), toDate($Date, 'yyyy-MM-dd')), order_approved_at, toTimestamp(null())),",
+						"          order_delivered_carrier_date = iif(lesserOrEqual(toDate(toString(order_delivered_carrier_date, 'yyyy-MM-dd'),'yyyy-MM-dd'), toDate($Date, 'yyyy-MM-dd')), order_delivered_carrier_date, toTimestamp(null())),",
+						"          order_delivered_customer_date = iif(lesserOrEqual(toDate(toString(order_delivered_customer_date, 'yyyy-MM-dd'),'yyyy-MM-dd'), toDate($Date, 'yyyy-MM-dd')), order_delivered_customer_date, toTimestamp(null())),",
+						"          order_estimated_delivery_date = iif(lesserOrEqual(toDate(toString(order_approved_at, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd')), order_estimated_delivery_date, toTimestamp(null())),",
+						"          order_status = iif(order_status=='canceled','CANCELED',\r",
+						"iif(toDate(toString(order_approved_at, 'yyyy-MM-dd'),'yyyy-MM-dd')==toDate($Date, 'yyyy-MM-dd'),'ORDERED',\r",
+						"iif(toDate(toString(order_delivered_carrier_date, 'yyyy-MM-dd'),'yyyy-MM-dd')==toDate($Date, 'yyyy-MM-dd'),'SHIPPED',\r",
+						"iif(toDate(toString(order_delivered_customer_date, 'yyyy-MM-dd'),'yyyy-MM-dd')==toDate($Date, 'yyyy-MM-dd'),'DELIVERED',upper(order_status)))))) ~> DeriveDates",
+						"ReviewsData filter(equals(toDate(toString(review_creation_date, 'yyyy-MM-dd'),'yyyy-MM-dd'),toDate($Date, 'yyyy-MM-dd'))) ~> filterReviews",
+						"customersdata, FilterDate exists(customersdata@customer_id == orderdata@customer_id,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> existsChkCust",
+						"DeriveDates select(mapColumn(",
+						"          order_id,",
+						"          customer_id,",
+						"          order_status,",
+						"          order_purchase_timestamp,",
+						"          order_approved_at,",
+						"          order_delivered_carrier_date,",
+						"          order_delivered_customer_date,",
+						"          order_estimated_delivery_date",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"existsChkCust sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('customer_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 2,",
+						"     partitionBy('hash', 1)) ~> custoutput",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('orders_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 1,",
+						"     partitionBy('hash', 1)) ~> orderoutput",
+						"existschkOrders sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('orderitems_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 3,",
+						"     partitionBy('hash', 1)) ~> TgtOrderItems",
+						"filterReviews sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('reviews_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> TgtReviews",
+						"existsChkReviewsInOrders sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('sellers_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 5,",
+						"     partitionBy('hash', 1)) ~> tgtSellersData",
+						"existsChkProducts sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('products_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 4,",
+						"     partitionBy('hash', 1)) ~> tgtProductData",
+						"existsChkPayments sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('payments_'+toString(toDate($Date,'yyyy-MM-dd'),'yyyyMMdd')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 6,",
+						"     partitionBy('hash', 1)) ~> tgtPaymentsData"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/s3_src_file')]",
+				"[concat(variables('factoryId'), '/datasets/Olist_Data')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Flow_Prepare_Data_copy1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "customersdata"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "orderdata"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "orderitmes",
+							"description": "Bring order items"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "PaymentsData",
+							"description": "Fetch payments data"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "ReviewsData",
+							"description": "Fetch Reviews"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "ProductsData",
+							"description": "Fetch Products"
+						},
+						{
+							"dataset": {
+								"referenceName": "s3_src_file",
+								"type": "DatasetReference"
+							},
+							"name": "SellerData",
+							"description": "Fetch Sellers Data"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "custoutput"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "orderoutput"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "TgtOrderItems"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "TgtReviews"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "tgtSellersData"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "tgtProductData"
+						},
+						{
+							"dataset": {
+								"referenceName": "Olist_Data",
+								"type": "DatasetReference"
+							},
+							"name": "tgtPaymentsData"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AddTMS"
+						},
+						{
+							"name": "filterrandom"
+						},
+						{
+							"name": "join1"
+						},
+						{
+							"name": "SelectOnlyOrdersData"
+						},
+						{
+							"name": "existschkOrders"
+						},
+						{
+							"name": "existschkOrderItems"
+						},
+						{
+							"name": "existsChkReviewsInOrders"
+						},
+						{
+							"name": "existsChkProducts"
+						},
+						{
+							"name": "existsChkPayments"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          customer_id as string,",
+						"          customer_unique_id as string,",
+						"          customer_zip_code_prefix as integer,",
+						"          customer_city as string,",
+						"          customer_state as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     limit: 20000,",
+						"     ignoreNoFilesFound: false) ~> customersdata",
+						"source(output(",
+						"          order_id as string,",
+						"          customer_id as string,",
+						"          order_status as string,",
+						"          order_purchase_timestamp as timestamp,",
+						"          order_approved_at as timestamp,",
+						"          order_delivered_carrier_date as timestamp,",
+						"          order_delivered_customer_date as timestamp,",
+						"          order_estimated_delivery_date as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> orderdata",
+						"source(output(",
+						"          order_id as string,",
+						"          order_item_id as short,",
+						"          product_id as string,",
+						"          seller_id as string,",
+						"          shipping_limit_date as timestamp,",
+						"          price as double,",
+						"          freight_value as double",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> orderitmes",
+						"source(output(",
+						"          order_id as string,",
+						"          payment_sequential as short,",
+						"          payment_type as string,",
+						"          payment_installments as short,",
+						"          payment_value as double",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> PaymentsData",
+						"source(output(",
+						"          review_id as string,",
+						"          order_id as string,",
+						"          review_score as string,",
+						"          review_comment_title as string,",
+						"          review_comment_message as string,",
+						"          review_creation_date as timestamp,",
+						"          review_answer_timestamp as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> ReviewsData",
+						"source(output(",
+						"          product_id as string,",
+						"          product_category_name as string,",
+						"          product_name_lenght as short,",
+						"          product_description_lenght as short,",
+						"          product_photos_qty as short,",
+						"          product_weight_g as short,",
+						"          product_length_cm as short,",
+						"          product_height_cm as short,",
+						"          product_width_cm as short",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> ProductsData",
+						"source(output(",
+						"          seller_id as string,",
+						"          seller_zip_code_prefix as integer,",
+						"          seller_city as string,",
+						"          seller_state as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> SellerData",
+						"filterrandom derive(Created_TMS = currentTimestamp()) ~> AddTMS",
+						"customersdata filter(random(1)<0.1) ~> filterrandom",
+						"orderdata, AddTMS join(orderdata@customer_id == customersdata@customer_id,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 select(mapColumn(",
+						"          order_id,",
+						"          customer_id = orderdata@customer_id,",
+						"          order_status,",
+						"          order_purchase_timestamp,",
+						"          order_approved_at,",
+						"          order_delivered_carrier_date,",
+						"          order_delivered_customer_date,",
+						"          order_estimated_delivery_date,",
+						"          Created_TMS",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectOnlyOrdersData",
+						"orderitmes, SelectOnlyOrdersData exists(orderitmes@order_id == SelectOnlyOrdersData@order_id,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> existschkOrders",
+						"ReviewsData, SelectOnlyOrdersData exists(ReviewsData@order_id == SelectOnlyOrdersData@order_id,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> existschkOrderItems",
+						"SellerData, existschkOrders exists(SellerData@seller_id == orderitmes@seller_id,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> existsChkReviewsInOrders",
+						"ProductsData, existschkOrders exists(ProductsData@product_id == orderitmes@product_id,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> existsChkProducts",
+						"PaymentsData, SelectOnlyOrdersData exists(PaymentsData@order_id == SelectOnlyOrdersData@order_id,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> existsChkPayments",
+						"AddTMS sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('customer_'+toString(currentDate()-1,'yyyyMMdd')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 1,",
+						"     partitionBy('hash', 1)) ~> custoutput",
+						"SelectOnlyOrdersData sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('orders_'+toString(currentDate()-1,'YYYYMMDD')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 2,",
+						"     partitionBy('hash', 1)) ~> orderoutput",
+						"existschkOrders sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('orderitems_'+toString(currentDate()-1,'YYYYMMDD')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> TgtOrderItems",
+						"existschkOrderItems sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('reviews_'+toString(currentDate()-1,'YYYYMMDD')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> TgtReviews",
+						"existsChkReviewsInOrders sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('sellers_'+toString(currentDate()-1,'YYYYMMDD')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> tgtSellersData",
+						"existsChkProducts sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('products_'+toString(currentDate()-1,'YYYYMMDD')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> tgtProductData",
+						"existsChkPayments sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:[('payments_'+toString(currentDate()-1,'YYYYMMDD')+'.csv')],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> tgtPaymentsData"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/s3_src_file')]",
+				"[concat(variables('factoryId'), '/datasets/Olist_Data')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Upd_FlowStatus')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "FlowStatus",
+								"type": "DatasetReference"
+							},
+							"name": "FlowStatus"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "FlowStatus",
+								"type": "DatasetReference"
+							},
+							"name": "IsrtFlowStatus"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          RUN_DATE as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> FlowStatus",
+						"FlowStatus derive(RUN_DATE = addDays(RUN_DATE,1)) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Column_1 as string",
+						"     ),",
+						"     partitionFileNames:['Flow_status.csv'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> IsrtFlowStatus"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/FlowStatus')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/csvtojson')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*.csv",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "csvinput",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "outputjson",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/csvinput')]",
+				"[concat(variables('factoryId'), '/datasets/outputjson')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/csvinput')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('csvinput_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/csvinput')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "csvinput",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "inputcsv"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/csvinput')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/outputjson')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "csvinput",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "outputjson"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/csvinput')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/csvtojson')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "csvtojson",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/inputcsv/blobs/",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('csvtojson_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/csvtojson')]"
+			]
+		}
+	]
+}
